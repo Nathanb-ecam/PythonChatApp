@@ -75,18 +75,26 @@ class UserApp(App):
     def send(self,instance):
         # verifier qu'on soit connecter au serveur 
         if self.connected:
-            client._send({'_transfer':{"UserInformations":{'Username':self.username.text,'Message':self.message.text,'Destinator':self.destinator.text}}})
+            client._send({'_transfer':{"UserInformations":{'Username':self.user.name,'Message':self.message.text,'Destinator':self.destinator}}})
 
     def connected_people_list(self,instance):
         if self.connected:
+            print("contact selectionné",self.connecteds.text)
             data = client._connectedPeople()
             self.connecteds.values = data.values()
 
-               
 
+               
     def page_manager(self,instance):
-        pages = {'_login':'loginScreen','_send':'sendScreen'}
+        pages = {'_login':'loginScreen','_contact':"contactScreen",'_send':'sendScreen'}
         sm.current = pages[instance.id]
+    
+    def contact_selector(self,instance):
+        if self.connecteds.text != "Connected Peoples": # on verifie qu'il ai bien selectionner un contact valable dans le spinner
+            selected_contact = self.connecteds.text
+            print("SELECTED CONTACT:",selected_contact)
+            self.page_manager(instance)   
+            self.destinator.text = selected_contact 
 
 
     def build(self):
@@ -117,16 +125,16 @@ class UserApp(App):
         password_container.add_widget(self.password)
 
         #SEND BUTTON
-        send_btn = Button(text='Sign In',size_hint=(1,0.2),color=white,background_color=black)
-        send_btn.id="_send"
+        login_btn = Button(text='Sign In',size_hint=(1,0.2),color=white,background_color=black)
+        login_btn.id="_contact"
         self.info = Label(text='',size_hint=(1,0.2),color=white)
-        send_btn.bind(on_press=self.login)
+        login_btn.bind(on_press=self.login)
 
 
         login_layout.add_widget(image)
         login_layout.add_widget(username_container)
         login_layout.add_widget(password_container)
-        login_layout.add_widget(send_btn)
+        login_layout.add_widget(login_btn)
         login_layout.add_widget(self.info)
 
         #adding components to screen 
@@ -137,57 +145,80 @@ class UserApp(App):
 
 
         """
-                SCREEN FOR SENDING MESSAGES
+                SCREEN FOR CONTACTS
         """
-        _sendScreen = Screen(name="sendScreen")
-        send_layout = BoxLayout(orientation='vertical',size_hint=(0.8,0.6),pos_hint={'center_x':0.5,'center_y':0.5})#pos_hint={'center_x':0.5,'center_y':0.5}
+        _contactScreen = Screen(name="contactScreen")
+        contact_layout = BoxLayout(orientation='vertical',size_hint=(0.8,0.6),pos_hint={'center_x':0.5,'center_y':0.5})#pos_hint={'center_x':0.5,'center_y':0.5}
 
         header_buttons = BoxLayout(orientation="horizontal")
 
        
-        persons = []
 
-        self.connecteds = Spinner(text="Connected Peoples",values= persons,size_hint=(0.3,0.2),color=green,background_color=white)
+        self.connecteds = Spinner(text="Connected Peoples",values= [],size_hint=(0.3,0.2),color=green,background_color=white)
         self.connecteds.bind(on_press=self.connected_people_list)
+ 
+
+        select_contact_btn = Button(text="Choisir",size_hint=(0.3,0.2))
+        select_contact_btn.id = "_send"
+        select_contact_btn.bind(on_press=self.contact_selector)
 
 
-
-
-        login = Button(text="Quit app",size_hint=(0.3,0.2),color=blue,background_color=white)
-        login.id = "_Exit"
-        # login.bind(on_press=self.page_manager)
-        login.bind(on_press=self.disconnect_from_server)
+        leave = Button(text="Quit app",size_hint=(0.3,0.2),color=blue,background_color=white)
+        leave.id = "_Exit"
+        # leave.bind(on_press=self.page_manager)
+        leave.bind(on_press=self.disconnect_from_server)
+        
         header_buttons.add_widget(self.connecteds)
-        header_buttons.add_widget(login)
+        header_buttons.add_widget(select_contact_btn)
+        header_buttons.add_widget(leave)
+
+
+
+
+
+        contact_layout.add_widget(header_buttons)
+        _contactScreen.add_widget(contact_layout)
+
+
+        """
+                SCREEN FOR SENDING MESSAGES
+        """
+        _sendScreen = Screen(name="sendScreen")
+
+
+        send_Layout = BoxLayout(orientation="vertical")
+
 
 
         sender_label = Label(text="Envoyer un message",font_size=25)
         self.message = TextInput(text="",multiline=False,font_size=20,size_hint=(1,0.5))
         receiver_label = Label(text="à",font_size=25)
-        self.destinator = TextInput(text="destinataire",multiline=False,font_size=20,size_hint=(1,0.5))
+        self.destinator = Label(text="undefined",font_size=25)
+        
         send_btn = Button(text='Envoyer',size_hint=(1,0.2),color=white,background_color=black)
         send_btn.bind(on_press=self.send)
-        self.send_info = Label(text='',size_hint=(1,0.2),color=white)
+        send_info = Label(text='',size_hint=(1,0.2),color=white)
 
 
 
-        send_layout.add_widget(header_buttons)
-        # send_layout.add_widget(self.connected_people_list)
-        send_layout.add_widget(sender_label)
-        send_layout.add_widget(self.message)
-        send_layout.add_widget(receiver_label)
-        send_layout.add_widget(self.destinator)
-        send_layout.add_widget(send_btn)
-        send_layout.add_widget(self.send_info)
+        send_Layout.add_widget(sender_label)
+        send_Layout.add_widget(self.message)
+        send_Layout.add_widget(receiver_label)
+        send_Layout.add_widget(self.destinator)
 
-        _sendScreen.add_widget(send_layout)
+        send_Layout.add_widget(send_btn)
+        send_Layout.add_widget(send_info)
+
+        _sendScreen.add_widget(send_Layout)
+
+        """
+                __________________________________________________________________________________________________________________________________________________________________
+        """
 
 
         sm.add_widget(_loginScreen)
         sm.add_widget(_sendScreen)
-
-
-
+        sm.add_widget(_contactScreen)
 
         return sm
 
