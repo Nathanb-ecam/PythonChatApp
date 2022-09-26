@@ -148,35 +148,47 @@ class UserApp(App):
                 SCREEN FOR CONTACTS
         """
         _contactScreen = Screen(name="contactScreen")
-        contact_layout = BoxLayout(orientation='vertical',size_hint=(0.8,0.6),pos_hint={'center_x':0.5,'center_y':0.5})#pos_hint={'center_x':0.5,'center_y':0.5}
+        contact_layout = BoxLayout(orientation='vertical')#size_hint=(0.8,0.6),pos_hint={'center_x':0.5,'center_y':0.5}
 
-        header_buttons = BoxLayout(orientation="horizontal")
 
-       
+        #HEADER
+        header_content = BoxLayout(orientation="horizontal",size_hint=(0.6,0.2),pos_hint={'center_x':0.5,'center_y':0.5})
 
-        self.connecteds = Spinner(text="Connected Peoples",values= [],size_hint=(0.3,0.2),color=green,background_color=white)
+        self.connecteds = Spinner(text="Connected Peoples",values= [],color=blue,background_color=white)#,size_hint=(0.3,0.2)
         self.connecteds.bind(on_press=self.connected_people_list)
  
 
-        select_contact_btn = Button(text="Choisir",size_hint=(0.3,0.2))
+        select_contact_btn = Button(text="Choisir",background_color=black)#,size_hint=(0.3,0.2)
         select_contact_btn.id = "_send"
         select_contact_btn.bind(on_press=self.contact_selector)
 
-
-        leave = Button(text="Quit app",size_hint=(0.3,0.2),color=blue,background_color=white)
+        leave = Button(text="Quit app",color=white,background_color=black)
         leave.id = "_Exit"
-        # leave.bind(on_press=self.page_manager)
         leave.bind(on_press=self.disconnect_from_server)
         
-        header_buttons.add_widget(self.connecteds)
-        header_buttons.add_widget(select_contact_btn)
-        header_buttons.add_widget(leave)
+        header_content.add_widget(self.connecteds)
+        header_content.add_widget(select_contact_btn)
+        header_content.add_widget(leave)
+
+        #BODY
+        body_content = BoxLayout(orientation="horizontal")
+        L = Label(text='HELLO')
+        body_content.add_widget(L)
+
+        # FOOTER
+        footer_content = BoxLayout(orientation="horizontal")
+
+        previous_btn = Button(text='Retour au login',size_hint=(1,0.2),color=white,background_color=black)
+        previous_btn.id = '_login'
+        previous_btn.bind(on_press=self.page_manager)
+
+        footer_content.add_widget(previous_btn)
 
 
-
-
-
-        contact_layout.add_widget(header_buttons)
+        # END OF LAYOUT
+        contact_layout.add_widget(header_content)
+        contact_layout.add_widget(body_content)
+        contact_layout.add_widget(footer_content)
         _contactScreen.add_widget(contact_layout)
 
 
@@ -199,12 +211,15 @@ class UserApp(App):
         send_btn.bind(on_press=self.send)
         send_info = Label(text='',size_hint=(1,0.2),color=white)
 
-
+        previous_btn = Button(text='Retour',size_hint=(1,0.2),color=white,background_color=black)
+        previous_btn.id = '_contact'
+        previous_btn.bind(on_press=self.page_manager)
 
         send_Layout.add_widget(sender_label)
         send_Layout.add_widget(self.message)
         send_Layout.add_widget(receiver_label)
         send_Layout.add_widget(self.destinator)
+        send_Layout.add_widget(previous_btn)
 
         send_Layout.add_widget(send_btn)
         send_Layout.add_widget(send_info)
